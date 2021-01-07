@@ -10,8 +10,8 @@ class Room extends Model
 {
     use SoftDeletes;
 
-    public function rooms()
+    public function meetings()
     {
-        return $this->hasMany('App\Room');
+        return $this->hasMany('App\Meeting');
     }
 }

@@ -23,7 +23,9 @@ class MeetingResource extends JsonResource
         return [
             'id' => $this->id,
             'room_id' => $this->room_id,
+            'room' => $this->room->name,
             'description' => $this->description,
+            'users_id' => $this->users()->pluck('id'),
             //'participants' => $this->users[0]['name'] . " " . $this->users[0]['surname'],
             'participants' => implode(", ", $this->users->map(function($user){
                 return $user->name . " " . $user->surname;

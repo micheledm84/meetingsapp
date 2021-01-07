@@ -1,13 +1,10 @@
 <template>
-    <!--<div class="container" :class="{'loading': loading}">-->
-    <div class="container" :class="{'loading': loading}">
-        <h2>hours</h2>
-        <p>The .table-striped class adds zebra-stripes to a table:</p>            
+    <div class="container">         
+        <div class="alert alert-success" v-show="success">The meeting has been created.</div>
         <form @submit.prevent="insertMeeting" method="POST">
-            <div class="alert alert-success" v-show="success">The meeting has been created.</div>
             <div class="form-group">
                 <label for="participants">Participants:</label>
-                <select v-model="formMeeting.participants" multiple class="form-control" id="participants">
+                <select required v-model="formMeeting.participants" multiple class="form-control" id="participants">
                     <option v-for="user in users" :value="user.id" :key="user.id">
                         {{ user.fullname }}
                     </option>
@@ -17,13 +14,13 @@
             </div>
             <div class="form-group">
                 <label for="description">Description:</label>
-                <textarea v-model="formMeeting.description" class="form-control" id="description" rows="3"></textarea>
+                <textarea required v-model="formMeeting.description" class="form-control" id="description" rows="3"></textarea>
                 <div class="alert alert-danger" v-if="errors && errors.description">{{ errors.description[0] }}</div>
 
             </div>
             <div class="form-group">
                 <label for="room">Room:</label>
-                <select v-model="formMeeting.room" class="form-control" id="room">
+                <select required v-model="formMeeting.room" class="form-control" id="room">
                     <option v-for="room in rooms" :value="room.id" :key="room.id">
                         {{ room.name }}
                     </option>
@@ -33,13 +30,13 @@
             </div>
             <div class="form-group">
                 <label for="date">Date:</label>
-                <input v-model="formMeeting.date" type="date" class="form-control" id="date">
+                <input required v-model="formMeeting.date" type="date" class="form-control" id="date">
                 <div class="alert alert-danger" v-if="errors && errors.date">{{ errors.date[0] }}</div>
 
             </div>
             <div class="form-group">
                 <label for="start">Start Hour:</label>
-                <select v-model="formMeeting.start" class="form-control" id="start">
+                <select required v-model="formMeeting.start" class="form-control" id="start">
                     <option v-for="(hour, index) in hours" :key="index">
                         {{ hour }}
                     </option>
@@ -49,7 +46,7 @@
             </div>
             <div class="form-group">
                 <label for="end">End Hour:</label>
-                <select v-model="formMeeting.end" class="form-control" id="end">
+                <select required v-model="formMeeting.end" class="form-control" id="end">
                     <option v-for="(hour, index) in hours" :key="index">
                         {{ hour }}
                     </option>
@@ -59,7 +56,7 @@
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
-
+        
     </div>
 </template>
 
@@ -94,8 +91,7 @@
                 .then((response) => {
                     this.users = response.data.data;
                 })
-                .catch(function(error) {
-                    alert('noviva');
+                .catch(error => {
                     console.log(error);
                 });
             },
@@ -104,7 +100,7 @@
                 .then((response) => {
                     this.rooms = response.data.data;
                 })
-                .catch(function(error) {
+                .catch(error => {
                     console.log(error);
                 });
             },
@@ -114,12 +110,16 @@
                     this.errors = response.data;
                     if (Object.keys(this.errors).length === 0) {
                         this.success = true;
-                        formMeeting = {};
+                        var el = this.$el.getElementsByClassName("alert-success")[0];
+                        console.log(el); //<div class="alert alert-success" style="">The meeting has been created.</div>
+                        //el.scrollIntoView();
+                        //this.scrollToTop();
+                        this.formMeeting = {};
                     } else {
                         this.success = false;
                     }
                 })
-                .catch(function(error) {
+                .catch(error => {
                     this.success = false;
                     console.log(error);
                     

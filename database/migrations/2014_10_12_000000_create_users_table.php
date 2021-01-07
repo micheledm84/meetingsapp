@@ -21,12 +21,14 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->unsignedBigInteger('permission_id');
+            $table->unsignedBigInteger('language_id');
             $table->softDeletes();
             //$table->enum('is_active', array(0, 1))->default(1);
             $table->rememberToken();
             $table->timestamps();
 
             $table->foreign('permission_id')->references('id')->on('permissions');
+            $table->foreign('language_id')->references('id')->on('languages');
         });
     }
 

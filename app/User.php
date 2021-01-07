@@ -47,6 +47,11 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Meeting')->withTimestamps();
     }
 
+    public function languages()
+    {
+        return $this->belongsToMany('App\Language')->withTimestamps();
+    }
+
     /*protected function create(array $data)
     {
         return User::create([

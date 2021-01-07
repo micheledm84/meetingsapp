@@ -1970,9 +1970,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['hours'],
   mounted: function mounted() {
@@ -2003,7 +2000,6 @@ __webpack_require__.r(__webpack_exports__);
       axios.get('api/users').then(function (response) {
         _this.users = response.data.data;
       })["catch"](function (error) {
-        alert('noviva');
         console.log(error);
       });
     },
@@ -2024,12 +2020,19 @@ __webpack_require__.r(__webpack_exports__);
 
         if (Object.keys(_this3.errors).length === 0) {
           _this3.success = true;
-          formMeeting = {};
+
+          var el = _this3.$el.getElementsByClassName("alert-success")[0];
+
+          console.log(el); //<div class="alert alert-success" style="">The meeting has been created.</div>
+          //el.scrollIntoView();
+          //this.scrollToTop();
+
+          _this3.formMeeting = {};
         } else {
           _this3.success = false;
         }
       })["catch"](function (error) {
-        this.success = false;
+        _this3.success = false;
         console.log(error);
       });
     }
@@ -2173,7 +2176,6 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _TableReport_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TableReport.vue */ "./resources/js/components/TableReport.vue");
 //
 //
 //
@@ -2206,23 +2208,23 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
- //import Footer from "./Footer.vue"
-
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  components: {
-    'table-report': _TableReport_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
-  },
+  components: {},
   mounted: function mounted() {
     console.log('Component mounted.');
     this.loadUsers();
     this.loadRooms();
   },
+  computed: {},
   data: function data() {
     return {
       success: true,
       failure: true,
       users: [],
       rooms: [],
+      meetingsReport: {},
       formReport: {
         room: '',
         start: '',
@@ -2239,7 +2241,6 @@ __webpack_require__.r(__webpack_exports__);
       axios.get('api/users').then(function (response) {
         _this.users = response.data.data;
       })["catch"](function (error) {
-        //alert('noviva');
         console.log(error);
       });
     },
@@ -2255,34 +2256,25 @@ __webpack_require__.r(__webpack_exports__);
     runReport: function runReport() {
       var _this3 = this;
 
-      //const url = "http://localhost/meetingsapp/public/api/get_report?room="+this.formReport['room']+"&participant="+this.formReport['participant']+"&start="+this.formReport['start']+"&end="+this.formReport['end'];
       var url = "api/get_report?room=" + this.formReport['room'] + "&participant=" + this.formReport['participant'] + "&start=" + this.formReport['start'] + "&end=" + this.formReport['end'];
-      /*alert(this.formReport['start']);
-      alert(this.formReport['end']);
-      alert(this.formReport['room']);
-      alert(this.formReport['participant']);*/
-      //axios.post('api/get_report', this.formReport)
-
       axios.get(url).then(function (response) {
-        _this3.errors = response.data;
+        console.log(response.data.data);
+        _this3.meetingsReport = response.data.data;
 
-        if (Object.keys(_this3.errors).length === 0) {
-          alert('viva'); //this.success = true;
+        _this3.$emit('pass-meetings', _this3.meetingsReport);
 
-          _this3.$emit('success'); //formReport = {};
+        _this3.$emit('success');
 
-        } else {
-          alert('vivano');
-
-          _this3.$emit('failure'); //this.success = false;
-          //this.$emit('success');
-
-        }
+        _this3.errors = {};
       })["catch"](function (error) {
-        alert('noviva');
-        this.$emit('failure'); //this.success = false;
+        console.log(error.response.data);
+        _this3.errors = error.response.data;
 
-        console.log(error);
+        _this3.$emit('failure');
+
+        _this3.$emit('pass-errors', _this3.errors);
+
+        console.log('call ended');
       });
     }
   }
@@ -2301,6 +2293,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TableReport_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TableReport.vue */ "./resources/js/components/TableReport.vue");
 /* harmony import */ var _ReportMeeting_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ReportMeeting.vue */ "./resources/js/components/ReportMeeting.vue");
+/* harmony import */ var _ValidatedErrors_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ValidatedErrors.vue */ "./resources/js/components/ValidatedErrors.vue");
 //
 //
 //
@@ -2310,26 +2303,36 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
     'table-report': _TableReport_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
-    'report-meeting': _ReportMeeting_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+    'report-meeting': _ReportMeeting_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
+    'validated-errors': _ValidatedErrors_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   mounted: function mounted() {
     console.log('Component mounted.');
   },
   data: function data() {
     return {
-      //success: true,
-      //errors: {},
-      displayTable: false
+      displayTable: false,
+      meetingsSelected: {},
+      errorsMeeting: []
     };
   },
-  methods: {}
+  methods: {
+    onPassMeetings: function onPassMeetings(value) {
+      console.log(value);
+      this.meetingsSelected = value;
+    },
+    onPassErrors: function onPassErrors(value) {
+      console.log('errors passed');
+      var values = Object.values(value);
+      this.errorsMeeting = values; //alert(this.errorsMeeting[0]);
+    }
+  }
 });
 
 /***/ }),
@@ -2373,20 +2376,49 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//import TableReport from "./TableReport.vue"
-//import Footer from "./Footer.vue"
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['success'],
-
-  /*components: {
-      'table-report': TableReport
-  },*/
+  props: ['meetingsSelected'],
   mounted: function mounted() {
     console.log('Component mounted.');
   },
   data: function data() {
-    return {//success: false
-    };
+    return {};
+  },
+  methods: {}
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ValidatedErrors.vue?vue&type=script&lang=js&":
+/*!**************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/ValidatedErrors.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['errorsMeeting'],
+  mounted: function mounted() {
+    console.log('Component mounted.');
+  },
+  data: function data() {
+    return {};
   },
   methods: {}
 });
@@ -37983,341 +38015,327 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticClass: "container", class: { loading: _vm.loading } },
-    [
-      _c("h2", [_vm._v("hours")]),
-      _vm._v(" "),
-      _c("p", [
-        _vm._v("The .table-striped class adds zebra-stripes to a table:")
-      ]),
-      _vm._v(" "),
-      _c(
-        "form",
-        {
-          attrs: { method: "POST" },
-          on: {
-            submit: function($event) {
-              $event.preventDefault()
-              return _vm.insertMeeting($event)
-            }
+  return _c("div", { staticClass: "container" }, [
+    _c(
+      "div",
+      {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: _vm.success,
+            expression: "success"
           }
-        },
-        [
+        ],
+        staticClass: "alert alert-success"
+      },
+      [_vm._v("The meeting has been created.")]
+    ),
+    _vm._v(" "),
+    _c(
+      "form",
+      {
+        attrs: { method: "POST" },
+        on: {
+          submit: function($event) {
+            $event.preventDefault()
+            return _vm.insertMeeting($event)
+          }
+        }
+      },
+      [
+        _c("div", { staticClass: "form-group" }, [
+          _c("label", { attrs: { for: "participants" } }, [
+            _vm._v("Participants:")
+          ]),
+          _vm._v(" "),
           _c(
-            "div",
+            "select",
             {
               directives: [
                 {
-                  name: "show",
-                  rawName: "v-show",
-                  value: _vm.success,
-                  expression: "success"
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.formMeeting.participants,
+                  expression: "formMeeting.participants"
                 }
               ],
-              staticClass: "alert alert-success"
+              staticClass: "form-control",
+              attrs: { required: "", multiple: "", id: "participants" },
+              on: {
+                change: function($event) {
+                  var $$selectedVal = Array.prototype.filter
+                    .call($event.target.options, function(o) {
+                      return o.selected
+                    })
+                    .map(function(o) {
+                      var val = "_value" in o ? o._value : o.value
+                      return val
+                    })
+                  _vm.$set(
+                    _vm.formMeeting,
+                    "participants",
+                    $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+                  )
+                }
+              }
             },
-            [_vm._v("The meeting has been created.")]
+            _vm._l(_vm.users, function(user) {
+              return _c(
+                "option",
+                { key: user.id, domProps: { value: user.id } },
+                [
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(user.fullname) +
+                      "\n                "
+                  )
+                ]
+              )
+            }),
+            0
           ),
           _vm._v(" "),
-          _c("div", { staticClass: "form-group" }, [
-            _c("label", { attrs: { for: "participants" } }, [
-              _vm._v("Participants:")
-            ]),
-            _vm._v(" "),
-            _c(
-              "select",
-              {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.formMeeting.participants,
-                    expression: "formMeeting.participants"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: { multiple: "", id: "participants" },
-                on: {
-                  change: function($event) {
-                    var $$selectedVal = Array.prototype.filter
-                      .call($event.target.options, function(o) {
-                        return o.selected
-                      })
-                      .map(function(o) {
-                        var val = "_value" in o ? o._value : o.value
-                        return val
-                      })
-                    _vm.$set(
-                      _vm.formMeeting,
-                      "participants",
-                      $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-                    )
-                  }
-                }
-              },
-              _vm._l(_vm.users, function(user) {
-                return _c(
-                  "option",
-                  { key: user.id, domProps: { value: user.id } },
-                  [
-                    _vm._v(
-                      "\n                    " +
-                        _vm._s(user.fullname) +
-                        "\n                "
-                    )
-                  ]
-                )
-              }),
-              0
-            ),
-            _vm._v(" "),
-            _vm.errors && _vm.errors.participants
-              ? _c("div", { staticClass: "alert alert-danger" }, [
-                  _vm._v(_vm._s(_vm.errors.participants[0]))
-                ])
-              : _vm._e()
+          _vm.errors && _vm.errors.participants
+            ? _c("div", { staticClass: "alert alert-danger" }, [
+                _vm._v(_vm._s(_vm.errors.participants[0]))
+              ])
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "form-group" }, [
+          _c("label", { attrs: { for: "description" } }, [
+            _vm._v("Description:")
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "form-group" }, [
-            _c("label", { attrs: { for: "description" } }, [
-              _vm._v("Description:")
-            ]),
-            _vm._v(" "),
-            _c("textarea", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.formMeeting.description,
-                  expression: "formMeeting.description"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { id: "description", rows: "3" },
-              domProps: { value: _vm.formMeeting.description },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.formMeeting, "description", $event.target.value)
-                }
+          _c("textarea", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.formMeeting.description,
+                expression: "formMeeting.description"
               }
-            }),
-            _vm._v(" "),
-            _vm.errors && _vm.errors.description
-              ? _c("div", { staticClass: "alert alert-danger" }, [
-                  _vm._v(_vm._s(_vm.errors.description[0]))
-                ])
-              : _vm._e()
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "form-group" }, [
-            _c("label", { attrs: { for: "room" } }, [_vm._v("Room:")]),
-            _vm._v(" "),
-            _c(
-              "select",
-              {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.formMeeting.room,
-                    expression: "formMeeting.room"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: { id: "room" },
-                on: {
-                  change: function($event) {
-                    var $$selectedVal = Array.prototype.filter
-                      .call($event.target.options, function(o) {
-                        return o.selected
-                      })
-                      .map(function(o) {
-                        var val = "_value" in o ? o._value : o.value
-                        return val
-                      })
-                    _vm.$set(
-                      _vm.formMeeting,
-                      "room",
-                      $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-                    )
-                  }
+            ],
+            staticClass: "form-control",
+            attrs: { required: "", id: "description", rows: "3" },
+            domProps: { value: _vm.formMeeting.description },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
                 }
-              },
-              _vm._l(_vm.rooms, function(room) {
-                return _c(
-                  "option",
-                  { key: room.id, domProps: { value: room.id } },
-                  [
-                    _vm._v(
-                      "\n                    " +
-                        _vm._s(room.name) +
-                        "\n                "
-                    )
-                  ]
-                )
-              }),
-              0
-            ),
-            _vm._v(" "),
-            _vm.errors && _vm.errors.room
-              ? _c("div", { staticClass: "alert alert-danger" }, [
-                  _vm._v(_vm._s(_vm.errors.room[0]))
-                ])
-              : _vm._e()
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "form-group" }, [
-            _c("label", { attrs: { for: "date" } }, [_vm._v("Date:")]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.formMeeting.date,
-                  expression: "formMeeting.date"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { type: "date", id: "date" },
-              domProps: { value: _vm.formMeeting.date },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.formMeeting, "date", $event.target.value)
-                }
+                _vm.$set(_vm.formMeeting, "description", $event.target.value)
               }
-            }),
-            _vm._v(" "),
-            _vm.errors && _vm.errors.date
-              ? _c("div", { staticClass: "alert alert-danger" }, [
-                  _vm._v(_vm._s(_vm.errors.date[0]))
-                ])
-              : _vm._e()
-          ]),
+            }
+          }),
           _vm._v(" "),
-          _c("div", { staticClass: "form-group" }, [
-            _c("label", { attrs: { for: "start" } }, [_vm._v("Start Hour:")]),
-            _vm._v(" "),
-            _c(
-              "select",
-              {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.formMeeting.start,
-                    expression: "formMeeting.start"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: { id: "start" },
-                on: {
-                  change: function($event) {
-                    var $$selectedVal = Array.prototype.filter
-                      .call($event.target.options, function(o) {
-                        return o.selected
-                      })
-                      .map(function(o) {
-                        var val = "_value" in o ? o._value : o.value
-                        return val
-                      })
-                    _vm.$set(
-                      _vm.formMeeting,
-                      "start",
-                      $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-                    )
-                  }
-                }
-              },
-              _vm._l(_vm.hours, function(hour, index) {
-                return _c("option", { key: index }, [
-                  _vm._v(
-                    "\n                    " +
-                      _vm._s(hour) +
-                      "\n                "
-                  )
-                ])
-              }),
-              0
-            ),
-            _vm._v(" "),
-            _vm.errors && _vm.errors.start
-              ? _c("div", { staticClass: "alert alert-danger" }, [
-                  _vm._v(_vm._s(_vm.errors.start[0]))
-                ])
-              : _vm._e()
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "form-group" }, [
-            _c("label", { attrs: { for: "end" } }, [_vm._v("End Hour:")]),
-            _vm._v(" "),
-            _c(
-              "select",
-              {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.formMeeting.end,
-                    expression: "formMeeting.end"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: { id: "end" },
-                on: {
-                  change: function($event) {
-                    var $$selectedVal = Array.prototype.filter
-                      .call($event.target.options, function(o) {
-                        return o.selected
-                      })
-                      .map(function(o) {
-                        var val = "_value" in o ? o._value : o.value
-                        return val
-                      })
-                    _vm.$set(
-                      _vm.formMeeting,
-                      "end",
-                      $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-                    )
-                  }
-                }
-              },
-              _vm._l(_vm.hours, function(hour, index) {
-                return _c("option", { key: index }, [
-                  _vm._v(
-                    "\n                    " +
-                      _vm._s(hour) +
-                      "\n                "
-                  )
-                ])
-              }),
-              0
-            ),
-            _vm._v(" "),
-            _vm.errors && _vm.errors.end
-              ? _c("div", { staticClass: "alert alert-danger" }, [
-                  _vm._v(_vm._s(_vm.errors.end[0]))
-                ])
-              : _vm._e()
-          ]),
+          _vm.errors && _vm.errors.description
+            ? _c("div", { staticClass: "alert alert-danger" }, [
+                _vm._v(_vm._s(_vm.errors.description[0]))
+              ])
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "form-group" }, [
+          _c("label", { attrs: { for: "room" } }, [_vm._v("Room:")]),
           _vm._v(" "),
           _c(
-            "button",
-            { staticClass: "btn btn-primary", attrs: { type: "submit" } },
-            [_vm._v("Submit")]
-          )
-        ]
-      )
-    ]
-  )
+            "select",
+            {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.formMeeting.room,
+                  expression: "formMeeting.room"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: { required: "", id: "room" },
+              on: {
+                change: function($event) {
+                  var $$selectedVal = Array.prototype.filter
+                    .call($event.target.options, function(o) {
+                      return o.selected
+                    })
+                    .map(function(o) {
+                      var val = "_value" in o ? o._value : o.value
+                      return val
+                    })
+                  _vm.$set(
+                    _vm.formMeeting,
+                    "room",
+                    $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+                  )
+                }
+              }
+            },
+            _vm._l(_vm.rooms, function(room) {
+              return _c(
+                "option",
+                { key: room.id, domProps: { value: room.id } },
+                [
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(room.name) +
+                      "\n                "
+                  )
+                ]
+              )
+            }),
+            0
+          ),
+          _vm._v(" "),
+          _vm.errors && _vm.errors.room
+            ? _c("div", { staticClass: "alert alert-danger" }, [
+                _vm._v(_vm._s(_vm.errors.room[0]))
+              ])
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "form-group" }, [
+          _c("label", { attrs: { for: "date" } }, [_vm._v("Date:")]),
+          _vm._v(" "),
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.formMeeting.date,
+                expression: "formMeeting.date"
+              }
+            ],
+            staticClass: "form-control",
+            attrs: { required: "", type: "date", id: "date" },
+            domProps: { value: _vm.formMeeting.date },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.$set(_vm.formMeeting, "date", $event.target.value)
+              }
+            }
+          }),
+          _vm._v(" "),
+          _vm.errors && _vm.errors.date
+            ? _c("div", { staticClass: "alert alert-danger" }, [
+                _vm._v(_vm._s(_vm.errors.date[0]))
+              ])
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "form-group" }, [
+          _c("label", { attrs: { for: "start" } }, [_vm._v("Start Hour:")]),
+          _vm._v(" "),
+          _c(
+            "select",
+            {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.formMeeting.start,
+                  expression: "formMeeting.start"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: { required: "", id: "start" },
+              on: {
+                change: function($event) {
+                  var $$selectedVal = Array.prototype.filter
+                    .call($event.target.options, function(o) {
+                      return o.selected
+                    })
+                    .map(function(o) {
+                      var val = "_value" in o ? o._value : o.value
+                      return val
+                    })
+                  _vm.$set(
+                    _vm.formMeeting,
+                    "start",
+                    $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+                  )
+                }
+              }
+            },
+            _vm._l(_vm.hours, function(hour, index) {
+              return _c("option", { key: index }, [
+                _vm._v(
+                  "\n                    " + _vm._s(hour) + "\n                "
+                )
+              ])
+            }),
+            0
+          ),
+          _vm._v(" "),
+          _vm.errors && _vm.errors.start
+            ? _c("div", { staticClass: "alert alert-danger" }, [
+                _vm._v(_vm._s(_vm.errors.start[0]))
+              ])
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "form-group" }, [
+          _c("label", { attrs: { for: "end" } }, [_vm._v("End Hour:")]),
+          _vm._v(" "),
+          _c(
+            "select",
+            {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.formMeeting.end,
+                  expression: "formMeeting.end"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: { required: "", id: "end" },
+              on: {
+                change: function($event) {
+                  var $$selectedVal = Array.prototype.filter
+                    .call($event.target.options, function(o) {
+                      return o.selected
+                    })
+                    .map(function(o) {
+                      var val = "_value" in o ? o._value : o.value
+                      return val
+                    })
+                  _vm.$set(
+                    _vm.formMeeting,
+                    "end",
+                    $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+                  )
+                }
+              }
+            },
+            _vm._l(_vm.hours, function(hour, index) {
+              return _c("option", { key: index }, [
+                _vm._v(
+                  "\n                    " + _vm._s(hour) + "\n                "
+                )
+              ])
+            }),
+            0
+          ),
+          _vm._v(" "),
+          _vm.errors && _vm.errors.end
+            ? _c("div", { staticClass: "alert alert-danger" }, [
+                _vm._v(_vm._s(_vm.errors.end[0]))
+              ])
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _c(
+          "button",
+          { staticClass: "btn btn-primary", attrs: { type: "submit" } },
+          [_vm._v("Submit")]
+        )
+      ]
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -38537,7 +38555,7 @@ var render = function() {
                 }
               ],
               staticClass: "form-control",
-              attrs: { id: "participant" },
+              attrs: { required: "", id: "participant" },
               on: {
                 change: function($event) {
                   var $$selectedVal = Array.prototype.filter
@@ -38586,7 +38604,7 @@ var render = function() {
               }
             ],
             staticClass: "form-control",
-            attrs: { type: "date", id: "start" },
+            attrs: { required: "", type: "date", id: "start" },
             domProps: { value: _vm.formReport.start },
             on: {
               input: function($event) {
@@ -38612,7 +38630,7 @@ var render = function() {
               }
             ],
             staticClass: "form-control",
-            attrs: { type: "date", id: "end" },
+            attrs: { required: "", type: "date", id: "end" },
             domProps: { value: _vm.formReport.end },
             on: {
               input: function($event) {
@@ -38640,7 +38658,7 @@ var render = function() {
                 }
               ],
               staticClass: "form-control",
-              attrs: { id: "room" },
+              attrs: { required: "", id: "room" },
               on: {
                 change: function($event) {
                   var $$selectedVal = Array.prototype.filter
@@ -38712,6 +38730,8 @@ var render = function() {
     [
       _c("report-meeting", {
         on: {
+          "pass-meetings": _vm.onPassMeetings,
+          "pass-errors": _vm.onPassErrors,
           failure: function($event) {
             _vm.displayTable = false
           },
@@ -38723,7 +38743,17 @@ var render = function() {
       _vm._v(" "),
       _c("hr"),
       _vm._v(" "),
-      _vm.displayTable === true ? _c("table-report") : _vm._e()
+      _vm.displayTable === false
+        ? _c("validated-errors", {
+            attrs: { errorsMeeting: _vm.errorsMeeting }
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.displayTable === true
+        ? _c("table-report", {
+            attrs: { meetingsSelected: _vm.meetingsSelected }
+          })
+        : _vm._e()
     ],
     1
   )
@@ -38750,52 +38780,138 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c("table", { staticClass: "table table-striped" }, [
+    _vm._m(0),
+    _vm._v(" "),
+    _c(
+      "tbody",
+      _vm._l(_vm.meetingsSelected, function(meeting) {
+        return _c("tr", { key: meeting.id }, [
+          _c("td", [_vm._v(_vm._s(meeting.id))]),
+          _vm._v(" "),
+          _c("td", [_vm._v(_vm._s(meeting.participants))]),
+          _vm._v(" "),
+          _c("td", [_vm._v(_vm._s(meeting.description))]),
+          _vm._v(" "),
+          _c("td", [_vm._v(_vm._s(meeting.room))]),
+          _vm._v(" "),
+          _c("td", [_vm._v(_vm._s(meeting.date))]),
+          _vm._v(" "),
+          _c("td", [_vm._v(_vm._s(meeting.start))]),
+          _vm._v(" "),
+          _c("td", [_vm._v(_vm._s(meeting.end))]),
+          _vm._v(" "),
+          _c("td", [
+            _c(
+              "button",
+              {
+                staticClass: "btn-primary",
+                attrs: { id: meeting.id, type: "button" },
+                on: {
+                  click: function($event) {
+                    return _vm.editMeeting(meeting.id)
+                  }
+                }
+              },
+              [_vm._v("Edit")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("td", [
+            _c(
+              "button",
+              {
+                staticClass: "btn-danger",
+                attrs: { id: meeting.id, type: "button" },
+                on: {
+                  click: function($event) {
+                    return _vm.deleteMeeting(meeting.id)
+                  }
+                }
+              },
+              [_vm._v("Delete")]
+            )
+          ])
+        ])
+      }),
+      0
+    )
+  ])
 }
 var staticRenderFns = [
   function() {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("table", { staticClass: "table" }, [
-      _c("thead", [
-        _c("tr", [
-          _c("th", [_vm._v("Firstname")]),
-          _vm._v(" "),
-          _c("th", [_vm._v("Lastname")]),
-          _vm._v(" "),
-          _c("th", [_vm._v("Email")])
-        ])
-      ]),
-      _vm._v(" "),
-      _c("tbody", [
-        _c("tr", [
-          _c("td", [_vm._v("John")]),
-          _vm._v(" "),
-          _c("td", [_vm._v("Doe")]),
-          _vm._v(" "),
-          _c("td", [_vm._v("john@example.com")])
-        ]),
+    return _c("thead", [
+      _c("tr", [
+        _c("th", [_vm._v("ID")]),
         _vm._v(" "),
-        _c("tr", [
-          _c("td", [_vm._v("Mary")]),
-          _vm._v(" "),
-          _c("td", [_vm._v("Moe")]),
-          _vm._v(" "),
-          _c("td", [_vm._v("mary@example.com")])
-        ]),
+        _c("th", [_vm._v("Participants")]),
         _vm._v(" "),
-        _c("tr", [
-          _c("td", [_vm._v("July")]),
-          _vm._v(" "),
-          _c("td", [_vm._v("Dooley")]),
-          _vm._v(" "),
-          _c("td", [_vm._v("july@example.com")])
-        ])
+        _c("th", [_vm._v("Description")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Room")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Date")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Start")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("End")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Edit")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Delete")])
       ])
     ])
   }
 ]
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ValidatedErrors.vue?vue&type=template&id=51aefafe&":
+/*!******************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/ValidatedErrors.vue?vue&type=template&id=51aefafe& ***!
+  \******************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _vm.errorsMeeting.length !== 0
+      ? _c(
+          "div",
+          { staticClass: "alert alert-danger" },
+          _vm._l(_vm.errorsMeeting, function(arr, index) {
+            return _c(
+              "ul",
+              { key: index },
+              _vm._l(arr, function(error, index) {
+                return _c("li", { key: index }, [
+                  _vm._v(
+                    "\n                " + _vm._s(error) + "\n            "
+                  )
+                ])
+              }),
+              0
+            )
+          }),
+          0
+        )
+      : _vm._e()
+  ])
+}
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -50996,6 +51112,7 @@ Vue.component('create-form', __webpack_require__(/*! ./components/CreateForm.vue
 Vue.component('report-meeting', __webpack_require__(/*! ./components/ReportMeeting.vue */ "./resources/js/components/ReportMeeting.vue")["default"]);
 Vue.component('table-report', __webpack_require__(/*! ./components/TableReport.vue */ "./resources/js/components/TableReport.vue")["default"]);
 Vue.component('reporter-meeting', __webpack_require__(/*! ./components/ReporterMeeting.vue */ "./resources/js/components/ReporterMeeting.vue")["default"]);
+Vue.component('validated-errors', __webpack_require__(/*! ./components/ValidatedErrors.vue */ "./resources/js/components/ValidatedErrors.vue")["default"]);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -51462,6 +51579,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_TableReport_vue_vue_type_template_id_6c55c487___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_TableReport_vue_vue_type_template_id_6c55c487___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/ValidatedErrors.vue":
+/*!*****************************************************!*\
+  !*** ./resources/js/components/ValidatedErrors.vue ***!
+  \*****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _ValidatedErrors_vue_vue_type_template_id_51aefafe___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ValidatedErrors.vue?vue&type=template&id=51aefafe& */ "./resources/js/components/ValidatedErrors.vue?vue&type=template&id=51aefafe&");
+/* harmony import */ var _ValidatedErrors_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ValidatedErrors.vue?vue&type=script&lang=js& */ "./resources/js/components/ValidatedErrors.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _ValidatedErrors_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _ValidatedErrors_vue_vue_type_template_id_51aefafe___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _ValidatedErrors_vue_vue_type_template_id_51aefafe___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/ValidatedErrors.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/ValidatedErrors.vue?vue&type=script&lang=js&":
+/*!******************************************************************************!*\
+  !*** ./resources/js/components/ValidatedErrors.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ValidatedErrors_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./ValidatedErrors.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ValidatedErrors.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ValidatedErrors_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/ValidatedErrors.vue?vue&type=template&id=51aefafe&":
+/*!************************************************************************************!*\
+  !*** ./resources/js/components/ValidatedErrors.vue?vue&type=template&id=51aefafe& ***!
+  \************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ValidatedErrors_vue_vue_type_template_id_51aefafe___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./ValidatedErrors.vue?vue&type=template&id=51aefafe& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ValidatedErrors.vue?vue&type=template&id=51aefafe&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ValidatedErrors_vue_vue_type_template_id_51aefafe___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ValidatedErrors_vue_vue_type_template_id_51aefafe___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

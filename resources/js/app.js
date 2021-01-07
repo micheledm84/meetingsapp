@@ -27,6 +27,7 @@ Vue.component('create-form', require('./components/CreateForm.vue').default);
 Vue.component('report-meeting', require('./components/ReportMeeting.vue').default);
 Vue.component('table-report', require('./components/TableReport.vue').default);
 Vue.component('reporter-meeting', require('./components/ReporterMeeting.vue').default);
+Vue.component('validated-errors', require('./components/ValidatedErrors.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
