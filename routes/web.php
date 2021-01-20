@@ -25,4 +25,6 @@ Route::get('/create', 'CreateController@index')->name('create');
 
 Route::get('/report', 'ReportController@index')->name('report');
 
+Route::get('/admin', 'AdminController@index')->name('admin');
+
 

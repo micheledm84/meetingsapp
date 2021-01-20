@@ -32,22 +32,18 @@ class OverlappingMeeting implements Rule
      */
     public function passes($attribute, $value)
     {
-        //dd($this->start); //02:15
-        //dd($this->end); //02:15
-        //dd($this->room); //1
-        //dd($this->date); //"2021-01-21"
-        $start_meetings = Meeting::where('start', '<', $this->start)->where('end', '>', $this->start)->where('room_id', $value)->whereDate("date", $this->date)->first();
-        $end_meetings = Meeting::where('start', '<', $this->end)->where('end', '>', $this->end)->where('room_id', $value)->whereDate("date", $this->date)->first();
-        $long_meetings = Meeting::where('start', '>', $this->start)->where('end', '<', $this->end)->where('room_id', $value)->whereDate("date", $this->date)->first();
+        $meeting = Meeting::where(function($q) {
+            $q->where('start', '>=', $this->start)->where('end', '<=', $this->end)
+            ->orWhere('start', '<', $this->end)->where('end', '>=', $this->end) 
+            ->orWhere('start', '<=', $this->start)->where('end', '>', $this->start);
+        })
+        ->whereDate("date", $this->date)
+        ->where('room_id', $value)
+        ->first();
 
-        //dd($start_meetings, $end_meetings, $long_meetings);
-
-        if(!$start_meetings && !$end_meetings && !$long_meetings) {
+        if(!$meeting) {
             return true;
         }
-
-        //return false;
-
 
 
     }

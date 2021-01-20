@@ -28,6 +28,15 @@ Vue.component('report-meeting', require('./components/ReportMeeting.vue').defaul
 Vue.component('table-report', require('./components/TableReport.vue').default);
 Vue.component('reporter-meeting', require('./components/ReporterMeeting.vue').default);
 Vue.component('validated-errors', require('./components/ValidatedErrors.vue').default);
+Vue.component('success-alert', require('./components/SuccessAlert.vue').default);
+Vue.component('admin-operations', require('./components/AdminOperations.vue').default);
+Vue.component('admin-panel', require('./components/AdminPanel.vue').default);
+Vue.component('insert-employee', require('./components/InsertEmployee.vue').default);
+Vue.component('edit-employee', require('./components/EditEmployee.vue').default);
+Vue.component('delete-employee', require('./components/DeleteEmployee.vue').default);
+Vue.component('insert-room', require('./components/InsertRoom.vue').default);
+Vue.component('edit-room', require('./components/EditRoom.vue').default);
+Vue.component('delete-room', require('./components/DeleteRoom.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

@@ -33,9 +33,9 @@ class EndBeforeStartDate implements Rule
         $start = Carbon::createFromFormat('Y-m-d', $this->start);   
         $end = Carbon::createFromFormat('Y-m-d', $this->end);   
 
-        /*if($end->greaterThan($start)){
+        if($end->greaterThan($start)){
             return true;
-        }*/
+        }
 
         
     }

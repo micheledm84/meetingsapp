@@ -1,6 +1,7 @@
 <template>
     <div class="container">         
-        <div class="alert alert-success" v-show="success">The meeting has been created.</div>
+        <!--<div class="alert alert-success" v-show="success">The meeting has been created.</div>-->
+        <success-alert :message_success="messageSuccess" v-show="success"></success-alert>
         <form @submit.prevent="insertMeeting" method="POST">
             <div class="form-group">
                 <label for="participants">Participants:</label>
@@ -61,8 +62,15 @@
 </template>
 
 <script>
+
+import SuccessAlert from './SuccessAlert.vue';
+
     export default {
+        components: {
+            'success-alert': SuccessAlert
+        },
         props: ['hours'],
+       
         mounted() {
             console.log('Component mounted.');
             this.loadUsers();
@@ -70,6 +78,7 @@
         },
         data: function() {
             return {
+                messageSuccess: 'The meeting has been correctly created',
                 users: [],
                 rooms: [],
                 formMeeting: {
@@ -111,10 +120,8 @@
                     if (Object.keys(this.errors).length === 0) {
                         this.success = true;
                         var el = this.$el.getElementsByClassName("alert-success")[0];
-                        console.log(el); //<div class="alert alert-success" style="">The meeting has been created.</div>
-                        //el.scrollIntoView();
-                        //this.scrollToTop();
                         this.formMeeting = {};
+                        this.formMeeting.participants = [];
                     } else {
                         this.success = false;
                     }

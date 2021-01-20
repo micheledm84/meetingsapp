@@ -3,7 +3,8 @@
         <div class="d-flex justify-content-between">
             <div class="form-group">
                 <label for="participant">Participant:</label>
-                <select required v-model="formReport.participant" class="form-control" id="participant">
+                <select v-model="formReport.participant" class="form-control" id="participant">
+                    <option :value="0" :key="0">all</option>
                     <option v-for="user in users" :value="user.id" :key="user.id">
                         {{ user.fullname }}
                     </option>
@@ -20,6 +21,7 @@
             <div class="form-group">
                 <label for="room">Room:</label>
                 <select required v-model="formReport.room" class="form-control" id="room">
+                    <option :value="0" :key="0">all</option>
                     <option v-for="room in rooms" :value="room.id" :key="room.id">
                         {{ room.name }}
                     </option>
@@ -46,16 +48,17 @@
         },
         data: function() {
             return {
+                
                 success: true,
                 failure: true,
                 users: [],
                 rooms: [],
                 meetingsReport: {},
                 formReport: {
-                    room: '',
+                    room: '0',
                     start: '',
                     end: '',
-                    participant: ''
+                    participant: '0'
                 },
                 errors: {},
             }

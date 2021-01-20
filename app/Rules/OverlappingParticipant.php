@@ -15,6 +15,7 @@ class OverlappingParticipant implements Rule
     public $start;
     public $end;
     public $date;
+    public $participants;
     /**
      * Create a new rule instance.
      *
@@ -36,31 +37,23 @@ class OverlappingParticipant implements Rule
      */
     public function passes($attribute, $value)
     {
-        //dd($this->start, $this->end, $this->date, $value);
+        $users = Meeting::select(DB::raw("CONCAT(users.name, ' ', users.surname) AS fullname"))
+            ->leftJoin('meeting_user', 'meetings.id', 'meeting_user.meeting_id')
+            ->leftJoin('users', 'meeting_user.user_id', 'users.id')
+            ->where(function($q) {
+                $q->where('start', '<=', $this->start)->where('end', '>', $this->start)
+                    ->orWhere('start', '<', $this->end)->where('end', '>=', $this->end)
+                    ->orWhere('start', '>=', $this->start)->where('start', '<', $this->end);
+            })
+            ->whereDate("date", $this->date)
+            ->whereIn('users.id', $value)
+            ->get();
 
-        $users = array();
-
-        foreach($value as $user) {
-
-            /*$start_meetings = Meeting::where('start', '<', $this->start)->where('end', '>', $this->start)->whereDate("date", $this->date)->first();
-            $end_meetings = Meeting::where('start', '<', $this->end)->where('end', '>', $this->end)->whereDate("date", $this->date)->first();
-            $long_meetings = Meeting::where('start', '>', $this->start)->where('end', '<', $this->end)->whereDate("date", $this->date)->first();*/
-
-            $users = Meeting::select(DB::raw("CONCAT('users.name','users.surname') AS fullname"))
-                ->leftJoin('meeting_user', 'meetings.id', 'meeting_user.meeting_id')
-                ->leftJoin('users', 'meeting_user.user_id', 'users.id')
-                //->whereNull('orders.customer_id')
-                //->get();
-                ->first();
-
-            //dd($users);
-
-            //dd($start_meetings, $end_meetings, $long_meetings);
-
-            /*if(!$start_meetings && !$end_meetings && !$long_meetings) {
-                array_push($users, $user);
-            }*/
+        if (!$users->first()) { 
+            return true;
         }
+
+        $this->participants = $users;
 
         
     }
@@ -72,6 +65,18 @@ class OverlappingParticipant implements Rule
      */
     public function message()
     {
-        return 'The validation error message.';
+        $return_text = 'The following users have already a meeting at that time: ';
+
+        foreach($this->participants as $participant) {
+            $return_text .= $participant->fullname;
+            $return_text .= ', ';
+        }
+
+        $return_text = substr($return_text, 0, -2);
+
+        $return_text .= '.';
+
+        return $return_text;
+        
     }
 }

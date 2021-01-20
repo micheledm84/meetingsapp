@@ -11,17 +11,17 @@ class LanguageSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('meetings')->insert([
+        DB::table('languages')->insert([
 
             [
                 'id' => 1,
-                'description' => 'English',
+                'name' => 'English',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ],
             [
                 'id' => 2,
-                'description' => 'Italian',
+                'name' => 'Italian',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ]

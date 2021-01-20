@@ -10,9 +10,6 @@ class CreateController extends Controller
 {
     public function index()
     {
-        /*$days = array('Monday'  => array('open_at' => '09:00', 'close_at' => '18:00'),
-              'Tuesday' => array('open_at' => '11:00', 'close_at' => '14:00')
-        );*/
 
         $open_at = '00:00';
         $close_at = '23:59';
@@ -25,11 +22,6 @@ class CreateController extends Controller
 
             $time->modify('+15 minutes');
         }
-
-        //$hours = collect($hours);
-
-        /*$ages['Peter'] = "35";
-        $ages['Ben'] = "37";*/
 
         return view('create')->with('hours', $hours);
     }
