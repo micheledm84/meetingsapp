@@ -2,7 +2,7 @@
     <div>
         <report-meeting @pass-meetings="onPassMeetings" @pass-errors="onPassErrors" @failure="displayTable=false" @success="displayTable=true"></report-meeting>
         <hr>
-        <validated-errors :errorsMeeting="errorsMeeting" v-if="displayTable===false"></validated-errors>
+        <validated-errors :errorsForm="errorsMeeting" v-if="displayTable===false"></validated-errors>
         <table-report :meetingsSelected="meetingsSelected" v-if="displayTable===true"></table-report>
     </div>
 </template>

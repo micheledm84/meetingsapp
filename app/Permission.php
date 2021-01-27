@@ -10,8 +10,13 @@ class Permission extends Model
 {
     use SoftDeletes;
 
-    public function meetings()
+    /*public function meetings()
     {
         return $this->hasMany('App\Meeting');
+    }*/
+
+    public function users()
+    {
+        return $this->hasMany('App\User');
     }
 }

@@ -23,10 +23,10 @@ class Meeting extends Model
         return $this->belongsToMany('App\User')->withTimestamps();
     }
 
-    public function permission()
+    /*public function permission()
     {
         return $this->belongsTo('App\Permission');
-    }
+    }*/
 
     public function room()
     {

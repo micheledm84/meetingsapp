@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <div id="app">
-        <admin-panel :permissions="{{  $permissions }}"></admin-panel>
+        <admin-panel :languages="{{  $languages }}" :rooms="{{  $rooms }}" :permissions="{{  $permissions }}" :users="{{ json_encode($users) }}"></admin-panel>
     </div>
 </div>
 @endsection

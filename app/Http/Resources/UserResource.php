@@ -21,7 +21,9 @@ class UserResource extends JsonResource
             'fullname' => $this->name . ' ' . $this->surname,
             'email' => $this->email,
             'password' => $this->password,
-            'permission' => $this->permission,
+            'permission' => $this->permission_id,
+            'language_id' => $this->language->id,
+            'language_name' => $this->language->name,
             //'is_active' => $this->is_active
         ];
         //return parent::toArray($request);

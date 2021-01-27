@@ -35,7 +35,7 @@
         },
         methods: {
             onChange(event) {
-                alert(event.target.value);
+                //alert(event.target.value);
                 //alert("viva");
                 this.$emit('pass-operations', this.selectOperations);
             }
